@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="vi-VN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>AssetRent - Gói đầu tư</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+                    sans-serif;
+                line-height: 1.6;
+                background: linear-gradient(
+                    135deg,
+                    #1e3c72 0%,
+                    #2a5298 50%,
+                    #1e3c72 100%
+                );
+                min-height: 100vh;
+                padding: 1rem;
+                color: #333;
+            }
+
+            .container {
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            .header {
+                text-align: center;
+                padding: 2rem 0 1.5rem;
+                color: white;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                letter-spacing: -0.5px;
+            }
+
+            .header p {
+                font-size: 0.9375rem;
+                opacity: 0.9;
+            }
+
+            .amount-selector {
+                background: white;
+                border-radius: 20px;
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            }
+
+            .amount-label {
+                font-size: 0.875rem;
+                color: #666;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+            }
+
+            .amount-display {
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                border-radius: 16px;
+                padding: 1.5rem;
+                text-align: center;
+                color: white;
+                margin-bottom: 1rem;
+            }
+
+            .amount-value {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }
+
+            .amount-text {
+                font-size: 0.875rem;
+                opacity: 0.9;
+            }
+
+            .quantity-control {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+
+            .quantity-label {
+                font-size: 0.875rem;
+                color: #666;
+                font-weight: 600;
+                flex: 1;
+            }
+
+            .quantity-buttons {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                background: #f8f9fa;
+                padding: 0.5rem 1rem;
+                border-radius: 50px;
+            }
+
+            .quantity-btn {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: none;
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                color: white;
+                font-size: 1.25rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .quantity-btn:active {
+                transform: scale(0.9);
+            }
+
+            .quantity-value {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #1e3c72;
+                min-width: 40px;
+                text-align: center;
+            }
+
+            .products-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .product-card {
+                background: white;
+                border-radius: 16px;
+                padding: 1.25rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 3px solid #e5e7eb;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .product-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #10b981, #059669, #047857);
+                opacity: 0;
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .product-card::after {
+                content: "✓";
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                width: 28px;
+                height: 28px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                font-weight: 700;
+                opacity: 0;
+                transform: scale(0) rotate(-180deg);
+                transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            }
+
+            .product-card:hover {
+                border-color: #cbd5e1;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            .product-card.active {
+                border-color: #10b981;
+                box-shadow:
+                    0 12px 32px rgba(16, 185, 129, 0.5),
+                    0 0 0 4px rgba(16, 185, 129, 0.15);
+                transform: translateY(-6px) scale(1.03);
+                background: linear-gradient(
+                    135deg,
+                    #d1fae5 0%,
+                    #ecfdf5 50%,
+                    #ffffff 100%
+                );
+            }
+
+            .product-card.active::before {
+                opacity: 1;
+                height: 5px;
+            }
+
+            .product-card.active::after {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+
+            .product-duration {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1e3c72;
+                margin-bottom: 0.5rem;
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .product-card.active .product-duration {
+                color: #059669;
+                transform: scale(1.08);
+            }
+
+            .product-rate {
+                display: flex;
+                align-items: baseline;
+                gap: 0.25rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .rate-value {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #10b981;
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .product-card.active .rate-value {
+                color: #047857;
+                transform: scale(1.1);
+                text-shadow: 0 2px 8px rgba(4, 120, 87, 0.4);
+            }
+
+            .rate-unit {
+                font-size: 0.875rem;
+                color: #666;
+                transition: all 0.35s;
+            }
+
+            .product-card.active .rate-unit {
+                color: #047857;
+                font-weight: 600;
+            }
+
+            .product-details {
+                font-size: 0.8125rem;
+                color: #666;
+                line-height: 1.5;
+                transition: all 0.35s;
+            }
+
+            .product-card.active .product-details {
+                color: #374151;
+            }
+
+            .product-detail-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.25rem 0;
+                transition: all 0.35s;
+            }
+
+            .detail-value {
+                font-weight: 600;
+                color: #333;
+                transition: all 0.35s;
+            }
+
+            .product-card.active .detail-value {
+                color: #059669;
+                font-weight: 700;
+            }
+
+            .result-card {
+                background: white;
+                border-radius: 20px;
+                padding: 1.5rem;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                margin-bottom: 1rem;
+            }
+
+            .result-title {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #666;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+
+            .result-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background: #f8f9fa;
+                border-radius: 12px;
+                margin-bottom: 0.75rem;
+            }
+
+            .result-item:last-child {
+                margin-bottom: 0;
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                color: white;
+            }
+
+            .result-label {
+                font-size: 0.9375rem;
+            }
+
+            .result-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            .result-item:last-child .result-label,
+            .result-item:last-child .result-value {
+                color: white;
+            }
+
+            .cta-button {
+                width: 100%;
+                padding: 1.125rem;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                border: none;
+                border-radius: 16px;
+                font-size: 1.125rem;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+                transition: all 0.3s;
+            }
+
+            .cta-button:active {
+                transform: scale(0.98);
+            }
+
+            .note {
+                text-align: center;
+                color: white;
+                opacity: 0.8;
+                font-size: 0.8125rem;
+                padding: 1rem 0;
+                line-height: 1.5;
+            }
+
+            @supports (padding: max(0px)) {
+                body {
+                    padding-top: max(1rem, env(safe-area-inset-top));
+                    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Gói đầu tư AssetRent</h1>
+                <p>Chọn gói phù hợp với bạn</p>
+            </div>
+
+            <div class="amount-selector">
+                <div class="amount-label">Tổng số tiền đầu tư</div>
+                <div class="amount-display">
+                    <div class="amount-value" id="totalAmount">750.000</div>
+                    <div class="amount-text">VNĐ</div>
+                </div>
+                <div class="quantity-control">
+                    <div class="quantity-label">Số lượng (750.000đ/phần)</div>
+                    <div class="quantity-buttons">
+                        <button class="quantity-btn" id="decreaseBtn">-</button>
+                        <div class="quantity-value" id="quantity">1</div>
+                        <button class="quantity-btn" id="increaseBtn">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-grid">
+                <div
+                    class="product-card active"
+                    data-days="7"
+                    data-rate="0.008"
+                >
+                    <div class="product-duration">7 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">0.8%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">5,6%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">292%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card" data-days="30" data-rate="0.01">
+                    <div class="product-duration">30 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">1.0%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">30%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">365%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card" data-days="60" data-rate="0.012">
+                    <div class="product-duration">60 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">1.2%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">72%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">438%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card" data-days="120" data-rate="0.0125">
+                    <div class="product-duration">120 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">1.25%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">150%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">456%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card" data-days="180" data-rate="0.015">
+                    <div class="product-duration">180 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">1.5%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">270%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">548%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card" data-days="360" data-rate="0.018">
+                    <div class="product-duration">360 ngày</div>
+                    <div class="product-rate">
+                        <span class="rate-value">1.8%</span>
+                        <span class="rate-unit">/ngày</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-detail-item">
+                            <span>Lãi suất kỳ hạn</span>
+                            <span class="detail-value">648%</span>
+                        </div>
+                        <div class="product-detail-item">
+                            <span>Dự kiến năm</span>
+                            <span class="detail-value">657%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <div class="result-title">Dự kiến thu về</div>
+                <div class="result-item">
+                    <span class="result-label">Lợi nhuận hàng ngày</span>
+                    <span class="result-value" id="dailyProfit">6.000đ</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tổng lợi nhuận</span>
+                    <span class="result-value" id="totalProfit">42.000đ</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tổng thu về</span>
+                    <span class="result-value" id="totalReturn">792.000đ</span>
+                </div>
+            </div>
+
+            <div class="note">
+                Lợi nhuận được tính theo ngày và có thể thay đổi.<br />
+                Đầu tư có rủi ro, vui lòng cân nhắc kỹ trước khi quyết định.
+            </div>
+        </div>
+
+        <script>
+            const BASE_AMOUNT = 750000;
+            let quantity = 1;
+            let selectedDays = 7;
+            let selectedRate = 0.008;
+
+            function formatNumber(num) {
+                return num.toLocaleString("vi-VN");
+            }
+
+            function updateAmount() {
+                const total = BASE_AMOUNT * quantity;
+                document.getElementById("totalAmount").textContent =
+                    formatNumber(total);
+                document.getElementById("quantity").textContent = quantity;
+                calculateProfit();
+            }
+
+            function calculateProfit() {
+                const total = BASE_AMOUNT * quantity;
+                const dailyProfit = Math.round(total * selectedRate);
+                const totalProfit = Math.round(dailyProfit * selectedDays);
+                const totalReturn = total + totalProfit;
+
+                document.getElementById("dailyProfit").textContent =
+                    formatNumber(dailyProfit) + "đ";
+                document.getElementById("totalProfit").textContent =
+                    formatNumber(totalProfit) + "đ";
+                document.getElementById("totalReturn").textContent =
+                    formatNumber(totalReturn) + "đ";
+            }
+
+            document
+                .getElementById("decreaseBtn")
+                .addEventListener("click", () => {
+                    if (quantity > 1) {
+                        quantity--;
+                        updateAmount();
+                    }
+                });
+
+            document
+                .getElementById("increaseBtn")
+                .addEventListener("click", () => {
+                    if (quantity < 100) {
+                        quantity++;
+                        updateAmount();
+                    }
+                });
+
+            document.querySelectorAll(".product-card").forEach((card) => {
+                card.addEventListener("click", function () {
+                    document
+                        .querySelectorAll(".product-card")
+                        .forEach((c) => c.classList.remove("active"));
+                    this.classList.add("active");
+                    selectedDays = parseInt(this.dataset.days);
+                    selectedRate = parseFloat(this.dataset.rate);
+                    calculateProfit();
+                });
+            });
+
+            updateAmount();
+        </script>
+    </body>
+</html>
